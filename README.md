@@ -73,4 +73,4 @@ Only H and S channels are modified; L is preserved to keep original lighting/tex
 
 ## Author
 
-[Your Name] - Image Processing Course, December 2024
+Mohanad Qaid - Image Processing Course, December 2024
