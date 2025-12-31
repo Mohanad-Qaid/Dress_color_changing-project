@@ -47,28 +47,33 @@ def rgb_to_hls(bgr_img):
 def hls_to_rgb(hls_img):
     """Convert HLS back to BGR"""
     H, L, S = hls_img[:,:,0], hls_img[:,:,1], hls_img[:,:,2]
-    
+
+    #color intensity based on lightness and saturation
     C = (1.0 - np.abs(2.0 * L - 1.0)) * S
     
     H_prime = H / 60.0
+    
+    #secondary color amount for smoothing in transition among colors
     X = C * (1.0 - np.abs(H_prime % 2 - 1.0))
     
     R, G, B = np.zeros_like(H), np.zeros_like(H), np.zeros_like(H)
     
-    m0 = (H_prime >= 0) & (H_prime < 1)
-    m1 = (H_prime >= 1) & (H_prime < 2)
-    m2 = (H_prime >= 2) & (H_prime < 3)
-    m3 = (H_prime >= 3) & (H_prime < 4)
-    m4 = (H_prime >= 4) & (H_prime < 5)
-    m5 = (H_prime >= 5) & (H_prime < 6)
-    
-    R[m0], G[m0], B[m0] = C[m0], X[m0], 0
+    m0 = (H_prime >= 0) & (H_prime < 1)  # red->yellow
+    m1 = (H_prime >= 1) & (H_prime < 2)  # yellow->green
+    m2 = (H_prime >= 2) & (H_prime < 3)  # green->cyan
+    m3 = (H_prime >= 3) & (H_prime < 4)  # cyan->blue
+    m4 = (H_prime >= 4) & (H_prime < 5)  # blue->magenta
+    m5 = (H_prime >= 5) & (H_prime < 6)  # magenta->red
+
+    #Assign base RGB for sector 0,1,2,3,4,5
+    R[m0], G[m0], B[m0] = C[m0], X[m0], 0  
     R[m1], G[m1], B[m1] = X[m1], C[m1], 0
     R[m2], G[m2], B[m2] = 0, C[m2], X[m2]
     R[m3], G[m3], B[m3] = 0, X[m3], C[m3]
     R[m4], G[m4], B[m4] = X[m4], 0, C[m4]
     R[m5], G[m5], B[m5] = C[m5], 0, X[m5]
-    
+
+    #Adds a brightness
     m = L - C / 2.0
     
     bgr = np.stack([(B + m) * 255, (G + m) * 255, (R + m) * 255], axis=2)
@@ -171,4 +176,5 @@ def main():
 if __name__ == "__main__":
 
     main()
+
 
