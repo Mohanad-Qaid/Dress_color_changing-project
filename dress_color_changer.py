@@ -17,17 +17,14 @@ def rgb_to_hls(bgr_img):
     Cmin = np.minimum(np.minimum(R, G), B)
     Delta = Cmax - Cmin
     
-    # Lightness: L = (Cmax + Cmin) / 2
     L = (Cmax + Cmin) / 2.0
     
-    # Saturation: S = Delta / (1 - |2L - 1|)
     S = np.zeros_like(L)
     mask = Delta > 1e-10
     denom = np.maximum(1.0 - np.abs(2.0 * L - 1.0), 1e-10)
     S[mask] = Delta[mask] / denom[mask]
     S = np.clip(S, 0, 1)
     
-    # Hue calculation based on which channel is max
     H = np.zeros_like(L)
     
     mask_r = (Cmax == R) & mask
@@ -48,16 +45,13 @@ def hls_to_rgb(hls_img):
     """Convert HLS back to BGR"""
     H, L, S = hls_img[:,:,0], hls_img[:,:,1], hls_img[:,:,2]
     
-    # C = (1 - |2L - 1|) * S
     C = (1.0 - np.abs(2.0 * L - 1.0)) * S
     
-    # X = C * (1 - |H' mod 2 - 1|)
     H_prime = H / 60.0
     X = C * (1.0 - np.abs(H_prime % 2 - 1.0))
     
     R, G, B = np.zeros_like(H), np.zeros_like(H), np.zeros_like(H)
     
-    # Assign RGB based on hue sector
     m0 = (H_prime >= 0) & (H_prime < 1)
     m1 = (H_prime >= 1) & (H_prime < 2)
     m2 = (H_prime >= 2) & (H_prime < 3)
@@ -72,7 +66,6 @@ def hls_to_rgb(hls_img):
     R[m4], G[m4], B[m4] = X[m4], 0, C[m4]
     R[m5], G[m5], B[m5] = C[m5], 0, X[m5]
     
-    # m = L - C/2
     m = L - C / 2.0
     
     bgr = np.stack([(B + m) * 255, (G + m) * 255, (R + m) * 255], axis=2)
@@ -110,7 +103,7 @@ def update_display(*args):
     s_tol = cv2.getTrackbarPos('Sat Tol', 'Controls') / 255.0
     show_mask = cv2.getTrackbarPos('Show Mask', 'Controls')
     
-    # Create mask based on color distance
+    # Creating mask based on color distance
     h_dist = hue_distance(hls_image[:,:,0], target_hls[0])
     l_dist = np.abs(hls_image[:,:,1] - target_hls[1])
     s_dist = np.abs(hls_image[:,:,2] - target_hls[2])
@@ -141,7 +134,6 @@ def main():
         print(f"Error: Cannot load {args.image}")
         return
     
-    # Resize if too large
     h, w = original_image.shape[:2]
     if h > 700:
         scale = 700 / h
@@ -174,4 +166,5 @@ def main():
 
 
 if __name__ == "__main__":
+
     main()
