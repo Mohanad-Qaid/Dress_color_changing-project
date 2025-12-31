@@ -16,15 +16,18 @@ def rgb_to_hls(bgr_img):
     Cmax = np.maximum(np.maximum(R, G), B)
     Cmin = np.minimum(np.minimum(R, G), B)
     Delta = Cmax - Cmin
-    
+
+    # Lightness: L = (Cmax + Cmin) / 2
     L = (Cmax + Cmin) / 2.0
-    
+
+    # Saturation: S = Delta / (1 - |2L - 1|)
     S = np.zeros_like(L)
     mask = Delta > 1e-10
     denom = np.maximum(1.0 - np.abs(2.0 * L - 1.0), 1e-10)
     S[mask] = Delta[mask] / denom[mask]
     S = np.clip(S, 0, 1)
-    
+
+    # Hue calculation based on which channel is max
     H = np.zeros_like(L)
     
     mask_r = (Cmax == R) & mask
@@ -168,3 +171,4 @@ def main():
 if __name__ == "__main__":
 
     main()
+
